@@ -4,6 +4,7 @@ import RadioButtonsPage from "../../pageObjects/radioButtonsPage";
 import WebTablesPage from "../../pageObjects/webTablesPage";
 import ButtonsPage from "../../pageObjects/buttonsPage";
 import LinksPage from "../../pageObjects/linksPage";
+import SelectablePage from "../../pageObjects/selectablePage";
 
 
 context("Elements Page", () => {
@@ -52,7 +53,7 @@ context("Elements Page", () => {
     beforeEach(() => {
      CheckBoxPage.visit();
     });
-    it.only("Clicking checkbox - Notes", () => {
+    it("Clicking checkbox - Notes", () => {
       
       CheckBoxPage.expandAllButton.click();
 
@@ -62,7 +63,7 @@ context("Elements Page", () => {
         .should("contain","notes")
         .should("contain","general")
       });
-    it.only("Clicking checkbox - Office", () =>{
+    it("Clicking checkbox - Office", () =>{
       CheckBoxPage.expandAllButton.click();
       CheckBoxPage.checkboxListItems.contains("Office").click();
       CheckBoxPage.selectedItemsArea
@@ -80,7 +81,7 @@ context("Elements Page", () => {
      RadioButtonsPage.visit();
     });
 
-    it.only("",()=>{
+    it("",()=>{
       RadioButtonsPage.yesRadioButton.click();
       RadioButtonsPage.resultsText.should("contain", "Yes");
       RadioButtonsPage.impressiveRadioButton.click();
@@ -95,7 +96,7 @@ context("Elements Page", () => {
       WebTablesPage.visit();
     });
     
-    it.only("Click Radio buttons scenario",() =>{
+    it("Click Radio buttons scenario",() =>{
       WebTablesPage.addButton.click();
       
       WebTablesPage.firstName.type("xxxxx");
@@ -112,7 +113,7 @@ context("Elements Page", () => {
 
 
     });
-    it.only("Delete all records",() =>{
+    it("Delete all records",() =>{
     //Delete user with email: alden@example.com
       WebTablesPage.deleteRow("alden@example.com");
     });
@@ -124,7 +125,7 @@ context("Elements Page", () => {
       ButtonsPage.visit();
     });
 
-    it.only("Click buttons",()=>{
+    it("Click buttons",()=>{
       //Do a double click / validate
       ButtonsPage.doubleClickButton.dblclick();
       ButtonsPage.doubleClickSuccessMsg.should('contain','You have done a double click')
@@ -138,18 +139,62 @@ context("Elements Page", () => {
   });
   
   
-  context("Butons page scenarios",()=>{
+  context("Buttons page scenarios",()=>{
     beforeEach(() => {
       LinksPage.visit();
     });
-    it.only("Click Links buttons",()=>{
+    it("Click Links buttons",()=>{
       cy.intercept("GET","created", {statusCode: 500}).as("getCreated");
       LinksPage.createdLink.click();
       cy.wait("@getCreated").then((data)=>{
-        expect(data.response.statusCode).to.eq(201)
+        expect(data.response.statusCode).to.eq(500)
       });
 
 
     });
+
+  context("Selectable page scenarios",()=>{
+    beforeEach(() => {
+      SelectablePage.visit();
+    });
+
+    it("Scenario 1", ()=>{
+      //Noklikot uz laukiem “Cras justo odio” un “Morbi leo risus”
+      SelectablePage.container.contains("Cras justo odio").click();
+      SelectablePage.container.contains("Morbi leo risus").click();
+      //Novalidēt, ka noklikotie lauki ir aktīvi.
+      SelectablePage.container.contains("Cras justo odio").should('have.class', "mt-2 list-group-item active list-group-item-action")
+      SelectablePage.container.contains("Morbi leo risus").should('have.class', "mt-2 list-group-item active list-group-item-action")
+      //Novalidēt, ka pārējie lauki nav mainījuši stāvokli.
+      SelectablePage.container.contains("Dapibus ac facilisis in").should('have.class', "mt-2 list-group-item list-group-item-action");
+      SelectablePage.container.contains("Porta ac consectetur ac").should('have.class', "mt-2 list-group-item list-group-item-action");
+    });
+
+    it("Scenario 2", ()=>{
+      //Atvērt sadaļu “Grid”.
+      SelectablePage.tabGrid.click();
+      //Noklikot laukus “Two”, “Four”, “Six” un “Eight”.
+      SelectablePage.gridElement.contains("Two").click();
+      SelectablePage.gridElement.contains("Four").click();
+      SelectablePage.gridElement.contains("Six").click();
+      SelectablePage.gridElement.contains("Eight").click();
+      //Novalidēt, ka lauki “Two”, “Four”, “Six” un “Eight” ir aktīvi.
+      SelectablePage.gridElement.contains("Two").should('have.class','list-group-item active list-group-item-action');
+      SelectablePage.gridElement.contains("Four").should('have.class','list-group-item active list-group-item-action');
+      SelectablePage.gridElement.contains("Six").should('have.class','list-group-item active list-group-item-action');
+      SelectablePage.gridElement.contains("Eight").should('have.class','list-group-item active list-group-item-action');
+      //Novalidēt, ka pārējie lauki nav mainījuši stāvokli.
+      SelectablePage.gridElement.contains("One").should('have.class','list-group-item list-group-item-action');
+      SelectablePage.gridElement.contains("Three").should('have.class','list-group-item list-group-item-action');
+      SelectablePage.gridElement.contains("Five").should('have.class','list-group-item list-group-item-action');
+      SelectablePage.gridElement.contains("Seven").should('have.class','list-group-item list-group-item-action');
+      SelectablePage.gridElement.contains("Nine").should('have.class','list-group-item list-group-item-action');
+    });
+
+
+  });
+
+
+
   });
 });
